@@ -1,0 +1,5 @@
+﻿{
+  "php": {
+    "extensions": ["gd", "mbstring", "xml", "zip", "bcmath", "mysql", "pdo_mysql"]
+  }
+}
