@@ -11,7 +11,13 @@ class EspaceFournisseurController extends Controller
 {
     private function getFournisseur(): Fournisseur
     {
-        return Fournisseur::where('email', auth()->user()->email)->firstOrFail();
+        $fournisseur = Fournisseur::where('email', auth()->user()->email)->first();
+
+        if (!$fournisseur) {
+            abort(403, 'Aucun profil fournisseur n\'est associé à votre compte (' . auth()->user()->email . '). Contactez l\'administrateur national.');
+        }
+
+        return $fournisseur;
     }
 
     public function dashboard()
@@ -80,6 +86,38 @@ class EspaceFournisseurController extends Controller
         $commande->load(['pharmacie', 'lignes.produit']);
 
         return view('espace-fournisseur.commande-detail', compact('fournisseur', 'commande'));
+    }
+
+    public function profil()
+    {
+        $fournisseur = $this->getFournisseur();
+        $stats = [
+            'total'      => $fournisseur->commandes()->count(),
+            'nouvelles'  => $fournisseur->commandes()->where('statut', 'envoyee')->count(),
+            'finalisees' => $fournisseur->commandes()->where('statut', 'finalisee')->count(),
+            'ca_total'   => $fournisseur->commandes()->where('statut', 'finalisee')->sum('montant_total'),
+        ];
+        return view('espace-fournisseur.profil', compact('fournisseur', 'stats'));
+    }
+
+    public function updateProfil(Request $request)
+    {
+        $fournisseur = $this->getFournisseur();
+
+        $request->validate([
+            'nom'              => 'required|string|max:255',
+            'telephone'        => 'nullable|string|max:50',
+            'numero_registre'  => 'nullable|string|max:100',
+            'adresse'          => 'nullable|string|max:500',
+            'ville'            => 'nullable|string|max:100',
+            'pays'             => 'nullable|string|max:100',
+        ]);
+
+        $fournisseur->update($request->only(['nom', 'telephone', 'numero_registre', 'adresse', 'ville', 'pays']));
+
+        AuditService::log('modification', 'fournisseurs', 'Fournisseur ' . $fournisseur->nom . ' a mis à jour son profil', $fournisseur);
+
+        return back()->with('success', 'Profil mis à jour avec succès.');
     }
 
     public function changerStatut(Request $request, Commande $commande)

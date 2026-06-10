@@ -181,10 +181,12 @@ Route::middleware(['role:admin_national|admin_pharmacie'])->group(function () {
 
         // Espace Fournisseur
         Route::middleware(['role:fournisseur'])->prefix('espace-fournisseur')->name('fournisseur.espace.')->group(function () {
-            Route::get('/', [EspaceFournisseurController::class, 'dashboard'])->name('dashboard');
-            Route::get('/commandes', [EspaceFournisseurController::class, 'commandes'])->name('commandes');
-            Route::get('/commandes/{commande}', [EspaceFournisseurController::class, 'showCommande'])->name('commande.show');
-            Route::patch('/commandes/{commande}/statut', [EspaceFournisseurController::class, 'changerStatut'])->name('commande.statut');
+            Route::get('/',                                          [EspaceFournisseurController::class, 'dashboard'])->name('dashboard');
+            Route::get('/commandes',                                 [EspaceFournisseurController::class, 'commandes'])->name('commandes');
+            Route::get('/commandes/{commande}',                      [EspaceFournisseurController::class, 'showCommande'])->name('commande.show');
+            Route::patch('/commandes/{commande}/statut',             [EspaceFournisseurController::class, 'changerStatut'])->name('commande.statut');
+            Route::get('/profil',                                    [EspaceFournisseurController::class, 'profil'])->name('profil');
+            Route::patch('/profil',                                  [EspaceFournisseurController::class, 'updateProfil'])->name('profil.update');
         });
 
     });
