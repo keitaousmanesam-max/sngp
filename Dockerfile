@@ -16,13 +16,9 @@ RUN npm install && npm run build
 RUN mkdir -p storage/framework/{sessions,views,cache,testing} storage/logs bootstrap/cache \
     && chmod -R 777 storage bootstrap/cache
 
-RUN echo 'server { \n\
-    listen 80; \n\
-    root /var/www/html/public; \n\
-    index index.php; \n\
-    location / { try_files \ \/ /index.php?\; } \n\
-    location ~ \.php$ { fastcgi_pass 127.0.0.1:9000; fastcgi_param SCRIPT_FILENAME \\; include fastcgi_params; } \n\
-}' > /etc/nginx/sites-available/default
+COPY docker/nginx.conf /etc/nginx/sites-available/default
+COPY docker/start.sh /start.sh
+RUN chmod +x /start.sh
 
-EXPOSE 80
-CMD php artisan migrate --force && php artisan db:seed --force && service nginx start && php-fpm
+EXPOSE 8080
+CMD ["/start.sh"]
