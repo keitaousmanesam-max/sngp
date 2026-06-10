@@ -75,7 +75,9 @@ class UtilisateurController extends Controller
 
         $pharmacies = $user->hasRole('admin_national') ? Pharmacie::where('statut', 'active')->get() : collect();
 
-        return view('utilisateurs.index', compact('utilisateurs', 'stats', 'roles', 'pharmacies'));
+        $nbAdminsNationaux = User::role('admin_national')->count();
+
+        return view('utilisateurs.index', compact('utilisateurs', 'stats', 'roles', 'pharmacies', 'nbAdminsNationaux'));
     }
 
     public function create()
@@ -312,11 +314,15 @@ class UtilisateurController extends Controller
 
     public function destroy(User $utilisateur)
     {
-        if ($utilisateur->hasRole('admin_national')) {
-            return back()->with('error', 'Impossible de supprimer l\'administrateur national.');
-        }
         if ($utilisateur->id === auth()->id()) {
             return back()->with('error', 'Vous ne pouvez pas supprimer votre propre compte.');
+        }
+
+        if ($utilisateur->hasRole('admin_national')) {
+            $nbAdmins = User::role('admin_national')->count();
+            if ($nbAdmins <= 1) {
+                return back()->with('error', 'Impossible de supprimer le dernier administrateur national.');
+            }
         }
 
         AuditService::log('suppression', 'utilisateurs', 'Utilisateur « ' . $utilisateur->prenom . ' ' . $utilisateur->nom . ' » supprimé', $utilisateur);

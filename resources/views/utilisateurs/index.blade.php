@@ -188,8 +188,8 @@
                             <div>
                                 <div class="fw-semibold" style="color: #1F2937;">
                                     {{ $utilisateur->prenom }} {{ $utilisateur->nom }}
-                                    @if($utilisateur->hasRole('admin_national'))
-                                    <span class="admin-badge ms-1"><i class="fas fa-shield-alt me-1"></i>Protégé</span>
+                                    @if($utilisateur->hasRole('admin_national') && $nbAdminsNationaux <= 1)
+                                    <span class="admin-badge ms-1"><i class="fas fa-shield-alt me-1"></i>Dernier admin</span>
                                     @endif
                                 </div>
                                 <small class="text-muted">{{ $utilisateur->email }}</small>
@@ -235,11 +235,14 @@
                                 <i class="fas fa-eye"></i>
                             </a>
 
+                            @php $estDernierAdmin = $utilisateur->hasRole('admin_national') && $nbAdminsNationaux <= 1; @endphp
+
                             @if(!$utilisateur->hasRole('admin_national'))
                             {{-- Modifier --}}
                             <a href="{{ route('utilisateurs.edit', $utilisateur) }}" class="action-btn edit" title="Modifier">
                                 <i class="fas fa-edit"></i>
                             </a>
+                            @endif
 
                             {{-- Débloquer --}}
                             @if($utilisateur->bloque_le)
@@ -251,6 +254,7 @@
                             </form>
                             @endif
 
+                            @if(!$utilisateur->hasRole('admin_national'))
                             {{-- Activer / Désactiver --}}
                             @if($utilisateur->actif)
                             <form method="POST" action="{{ route('utilisateurs.desactiver', $utilisateur) }}" class="d-inline">
@@ -268,6 +272,7 @@
                                 </button>
                             </form>
                             @endif
+                            @endif
 
                             {{-- Réinitialiser mot de passe --}}
                             <form method="POST" action="{{ route('utilisateurs.reinitialiser-mot-de-passe', $utilisateur) }}" class="d-inline">
@@ -279,17 +284,17 @@
                             </form>
 
                             {{-- Supprimer --}}
+                            @if(!$estDernierAdmin)
                             <form method="POST" action="{{ route('utilisateurs.destroy', $utilisateur) }}" class="d-inline">
                                 @csrf @method('DELETE')
                                 <button class="action-btn delete" title="Supprimer"
-                                    onclick="return confirm('Supprimer cet utilisateur ?')">
+                                    onclick="return confirm('Supprimer {{ $utilisateur->prenom }} {{ $utilisateur->nom }} ?')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>
                             @else
-                            {{-- Admin national : afficher un message protégé --}}
-                            <span style="font-size: 12px; color: #9CA3AF; font-style: italic;">
-                                <i class="fas fa-shield-alt me-1"></i>Protégé
+                            <span title="Dernier administrateur national — non supprimable" style="font-size: 12px; color: #9CA3AF; font-style: italic;">
+                                <i class="fas fa-shield-alt me-1"></i>Dernier admin
                             </span>
                             @endif
                         </div>
