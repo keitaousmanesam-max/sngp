@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem -Path \"c:\\\\Users\\\\OusmaneSamKeita\\\\Desktop\\\\Projet_de_fin_sicle\\\\sngp\\\\app\" -Recurse -Directory | Select-Object FullName | ForEach-Object { $_.FullName -replace [regex]::Escape\\(\"c:\\\\Users\\\\OusmaneSamKeita\\\\Desktop\\\\Projet_de_fin_sicle\\\\sngp\"\\), \"\" })",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\OusmaneSamKeita\\\\Desktop\\\\Projet_de_fin_sicle\\\\sngp\" -Recurse -Filter \"*Controller*\")",
+      "Bash(Select-Object -First 20)"
+    ]
+  }
+}
