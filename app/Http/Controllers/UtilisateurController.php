@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use App\Mail\CompteUtilisateurCree;
+use Illuminate\Support\Facades\Mail;
 use Spatie\Permission\Models\Role;
 
 class UtilisateurController extends Controller
@@ -142,12 +144,21 @@ class UtilisateurController extends Controller
                 $newUser
             );
 
+            $emailEnvoye = false;
+            try {
+                Mail::to($newUser->email)->send(new CompteUtilisateurCree($newUser, $motDePasse, $request->role));
+                $emailEnvoye = true;
+            } catch (\Exception $e) {
+                Log::warning('Email utilisateur non envoyé (' . $newUser->email . '): ' . $e->getMessage());
+            }
+
             session([
                 'nouveau_utilisateur' => [
                     'nom_complet'  => $request->prenom . ' ' . $request->nom,
                     'email'        => $request->email,
                     'role'         => $request->role,
                     'mot_de_passe' => $motDePasse,
+                    'email_envoye' => $emailEnvoye,
                 ]
             ]);
 
@@ -277,12 +288,22 @@ class UtilisateurController extends Controller
 
         AuditService::log('modification', 'utilisateurs', 'Mot de passe de ' . $utilisateur->prenom . ' ' . $utilisateur->nom . ' réinitialisé', $utilisateur);
 
+        $role = $utilisateur->getRoleNames()->first() ?? 'utilisateur';
+        $emailEnvoye = false;
+        try {
+            Mail::to($utilisateur->email)->send(new CompteUtilisateurCree($utilisateur, $motDePasse, $role));
+            $emailEnvoye = true;
+        } catch (\Exception $e) {
+            Log::warning('Email réinitialisation non envoyé (' . $utilisateur->email . '): ' . $e->getMessage());
+        }
+
         session([
             'nouveau_utilisateur' => [
                 'nom_complet'  => $utilisateur->prenom . ' ' . $utilisateur->nom,
                 'email'        => $utilisateur->email,
-                'role'         => $utilisateur->getRoleNames()->first(),
+                'role'         => $role,
                 'mot_de_passe' => $motDePasse,
+                'email_envoye' => $emailEnvoye,
             ]
         ]);
 

@@ -8,7 +8,9 @@ use App\Services\AuditService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use App\Mail\CompteUtilisateurCree;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class FournisseurController extends Controller
@@ -156,17 +158,21 @@ class FournisseurController extends Controller
         $user = User::firstOrCreate(
             ['email' => $fournisseur->email],
             [
-                'nom'                => 'Fournisseur',
-                'prenom'             => $fournisseur->nom,
-                'email'              => $fournisseur->email,
-                'telephone'          => $fournisseur->telephone,
-                'password'           => Hash::make($motDePasse),
-                'premiere_connexion' => true,
-                'actif'              => true,
-                'pharmacie_id'       => null,
+                'nom'          => 'Fournisseur',
+                'prenom'       => $fournisseur->nom,
+                'email'        => $fournisseur->email,
+                'telephone'    => $fournisseur->telephone,
+                'pharmacie_id' => null,
             ]
         );
-        $user->assignRole('fournisseur');
+        $user->update([
+            'password'           => Hash::make($motDePasse),
+            'premiere_connexion' => true,
+            'actif'              => true,
+        ]);
+        if (!$user->hasRole('fournisseur')) {
+            $user->assignRole('fournisseur');
+        }
 
         AuditService::log(
             'modification',
@@ -175,12 +181,21 @@ class FournisseurController extends Controller
             $fournisseur
         );
 
+        $emailEnvoye = false;
+        try {
+            Mail::to($fournisseur->email)->send(new CompteUtilisateurCree($user, $motDePasse, 'fournisseur'));
+            $emailEnvoye = true;
+        } catch (\Exception $e) {
+            Log::warning('Email fournisseur non envoyé (' . $fournisseur->email . '): ' . $e->getMessage());
+        }
+
         session([
             'nouveau_utilisateur' => [
                 'nom_complet'  => $fournisseur->nom,
                 'email'        => $fournisseur->email,
                 'role'         => 'fournisseur',
                 'mot_de_passe' => $motDePasse,
+                'email_envoye' => $emailEnvoye,
             ]
         ]);
 

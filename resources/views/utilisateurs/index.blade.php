@@ -352,6 +352,17 @@
                     </button>
                 </div>
             </div>
+            @if(!empty($creds['email_envoye']))
+            <div style="background: #D1FAE5; border: 1px solid #6EE7B7; border-radius: 10px; padding: 12px 16px; margin-bottom: 12px; font-size: 13px; color: #065F46;">
+                <i class="fas fa-check-circle me-2"></i>
+                <strong>Email envoyé</strong> — Les identifiants ont été transmis à <strong>{{ $creds['email'] }}</strong>.
+            </div>
+            @else
+            <div style="background: #FEE2E2; border: 1px solid #FCA5A5; border-radius: 10px; padding: 12px 16px; margin-bottom: 12px; font-size: 13px; color: #991B1B;">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Email non envoyé</strong> — Notez ce mot de passe et transmettez-le manuellement.
+            </div>
+            @endif
             <div style="background: #FFFBEB; border: 1px solid #FCD34D; border-radius: 10px; padding: 12px 16px; margin-bottom: 20px;">
                 <p style="color: #92400E; font-size: 12px; margin: 0;">
                     <i class="fas fa-exclamation-triangle me-1"></i>
