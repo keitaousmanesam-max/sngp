@@ -25,4 +25,4 @@ RUN echo 'server { \n\
 }' > /etc/nginx/sites-available/default
 
 EXPOSE 80
-CMD service nginx start && php-fpm
+CMD php artisan migrate --force && php artisan db:seed --force && service nginx start && php-fpm
