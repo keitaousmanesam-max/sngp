@@ -104,7 +104,7 @@ class UtilisateurController extends Controller
         $request->validate([
             'nom'          => 'required|string|max:255',
             'prenom'       => 'required|string|max:255',
-            'email'        => 'required|email|unique:users,email',
+            'email'        => 'required|email|unique:users,email,NULL,id,deleted_at,NULL',
             'telephone'    => 'nullable|string|max:20',
             'role'         => 'required|string|exists:roles,name',
             'pharmacie_id' => 'nullable|exists:pharmacies,id',
