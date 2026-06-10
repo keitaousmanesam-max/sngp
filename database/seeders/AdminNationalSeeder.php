@@ -11,11 +11,11 @@ class AdminNationalSeeder extends Seeder
     public function run(): void
     {
         $admin = User::firstOrCreate(
-            ['email' => 'admin@sngp.gouv.gn'],
+            ['email' => 'keitaousmanesam@gmail.com'],
             [
                 'nom'                  => 'Keita',
                 'prenom'               => 'Administrateur',
-                'email'                => 'admin@sngp.gouv.gn',
+                'email'                => 'keitaousmanesam@gmail.com',
                 'telephone'            => '+224 000 000 000',
                 'password'             => Hash::make('Admin@2026'),
                 'premiere_connexion'   => false,
@@ -27,7 +27,7 @@ class AdminNationalSeeder extends Seeder
         $admin->assignRole('admin_national');
 
         $this->command->info('Administrateur national créé avec succès !');
-        $this->command->info('Email    : admin@sngp.gouv.gn');
+        $this->command->info('Email    : keitaousmanesam@gmail.com');
         $this->command->info('Password : Admin@2026');
     }
 }
