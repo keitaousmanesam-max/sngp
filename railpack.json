@@ -1,12 +1,11 @@
 ﻿{
-  "php": {
-    "extensions": ["gd", "mbstring", "xml", "zip", "bcmath", "mysql", "pdo_mysql"]
-  },
-  "nodejs": {
-    "install": false
-  },
-  "build": {
-    "command": "composer install --no-dev --optimize-autoloader"
+  "phases": {
+    "build": {
+      "dependsOn": ["install:composer"],
+      "commands": [
+        "install-php-extensions gd"
+      ]
+    }
   },
   "deploy": {
     "startCommand": "php artisan serve --host=0.0.0.0 --port="
